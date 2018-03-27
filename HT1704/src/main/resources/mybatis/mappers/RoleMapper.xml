@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.tarena.ht.mapper.RoleMapper">
+	
+	<!--将insert中的字段复用  -->
+	<sql id="insertColumn">
+		#{createBy,jdbcType=VARCHAR},
+		#{createDept,jdbcType=VARCHAR},
+		#{createTime,jdbcType=DATE},
+		#{updateBy,jdbcType=VARCHAR},
+		#{updateTime,jdbcType=DATE}
+	</sql>
+	
+	<sql id="updateColumn">
+		create_by = #{createBy,jdbcType=VARCHAR},
+		create_dept = #{createDept,jdbcType=VARCHAR},
+		create_time = #{createTime,jdbcType=DATE},
+		update_by = #{updateBy,jdbcType=VARCHAR},
+		update_time = #{updateTime,jdbcType=DATE}
+	</sql>
+	
+	<!-- <select id="findAll" resultType="Role">
+		select * from role_p order by order_no
+	</select> -->
+	
+	<!--删除角色信息  -->
+	<delete id="deleteRoles">
+		delete from role_p where role_id in(
+			<foreach collection="array" item="roleId" separator=",">
+				#{roleId}
+			</foreach>
+		)
+	</delete>
+	
+	
+	<!--角色新增  -->
+	<insert id="saveRole">
+		insert into role_p values(
+			#{roleId},
+			#{name},
+			#{remarks},
+			#{orderNo},
+			<include refid="insertColumn"/>	
+		)
+	</insert>
+	
+	
+	<!--角色更新  -->
+	<update id="updateRole">
+		update role_p 
+		<set>
+			name = #{name},
+			remarks = #{remarks},
+			order_no = #{orderNo},
+			<if test="createBy !=null">create_by = #{createBy,jdbcType=VARCHAR},</if>
+			<if test="createDept !=null">create_dept = #{createDept,jdbcType=VARCHAR},</if>
+			<if test="createTime !=null">create_time = #{createTime,jdbcType=DATE},</if>
+			<if test="updateBy !=null">update_by = #{updateBy,jdbcType=VARCHAR},</if>
+			<if test="updateTime !=null">update_time = #{updateTime,jdbcType=DATE}</if>
+		</set>
+		where
+			role_id = #{roleId}
+	</update>
+	
+	
+	<!--根据UserId查询角色信息  -->
+	<!-- <select id="findRoleIdByUserId" resultType="string">
+		select role_id from role_user_p where user_id =#{userId}
+	</select> -->
+	
+	
+	
+	<!--根据roleId 查询用户的moudleId  -->
+	<select id="findModuleIdListByRoleId" resultType="string">
+		select module_id from role_module_p where role_id = #{roleId}
+	</select>
+	
+	<!--关联删除 role_user_p表  -->
+	<delete id="deleteRoleUser">
+		delete from role_user_p where role_id in(
+			<foreach collection="array" item="roleId" separator=",">
+				#{roleId}
+			</foreach>
+		)
+	</delete>
+	
+	<delete id="deleteRoleModules">
+		delete from role_module_p where role_id in(
+			<foreach collection="array" item="roleId" separator=",">
+				#{roleId}
+			</foreach>
+		)
+	</delete>
+	
+</mapper>
